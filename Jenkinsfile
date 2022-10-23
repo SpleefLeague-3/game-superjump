@@ -10,7 +10,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh "mkdir -p /mnt/jenkins/SuperJump"
-                sh "rm ./target/original*"
+                sh "rm -f ./target/original*"
                 sh "cp ./target/*.jar /mnt/jenkins/SuperJump/"
             }
         }
