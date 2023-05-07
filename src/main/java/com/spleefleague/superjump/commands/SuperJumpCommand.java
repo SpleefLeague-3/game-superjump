@@ -35,7 +35,12 @@ public class SuperJumpCommand extends CoreCommand {
         setOptions("proArenas", pi -> Arenas.getAll(SJMode.PRO.getBattleMode()).keySet());
     }
 
-    private static final Set<String> enabledModes = Sets.newHashSet(SJMode.CLASSIC.name().toLowerCase());
+    private static final Set<String> enabledModes = Sets.newHashSet(
+            SJMode.CLASSIC.name().toLowerCase(),
+            SJMode.ENDLESS.name().toLowerCase(),
+            SJMode.CONQUEST.name().toLowerCase(),
+            SJMode.SHUFFLE.name().toLowerCase()
+    );
     
     @CommandAnnotation
     public void sj(CorePlayer sender) {
