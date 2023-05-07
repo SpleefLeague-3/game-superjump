@@ -10,24 +10,21 @@ import com.spleefleague.core.Core;
 import com.spleefleague.core.chat.Chat;
 import com.spleefleague.core.game.arena.Arenas;
 import com.spleefleague.core.game.battle.Battle;
-import com.spleefleague.core.menu.*;
-import com.spleefleague.core.menu.hotbars.SLMainHotbar;
+import com.spleefleague.core.menu.InventoryMenuAPI;
+import com.spleefleague.core.menu.InventoryMenuContainerChest;
+import com.spleefleague.core.menu.InventoryMenuItem;
+import com.spleefleague.core.menu.InventoryMenuUtils;
 import com.spleefleague.core.menu.hotbars.main.GamemodeMenu;
 import com.spleefleague.core.player.CoreDBPlayer;
 import com.spleefleague.core.player.PlayerManager;
 import com.spleefleague.core.plugin.CorePlugin;
-import com.spleefleague.superjump.commands.*;
+import com.spleefleague.coreapi.chat.ChatColor;
+import com.spleefleague.superjump.commands.SuperJumpCommand;
 import com.spleefleague.superjump.game.SJMode;
-import com.spleefleague.superjump.game.conquest.ConquestSJArena;
-import com.spleefleague.superjump.game.endless.EndlessSJArena;
-import com.spleefleague.superjump.game.pro.ProSJArena;
-import com.spleefleague.superjump.game.classic.ClassicSJArena;
-import com.spleefleague.superjump.game.shuffle.ShuffleSJArena;
 import com.spleefleague.superjump.player.SuperJumpPlayer;
 import com.spleefleague.superjump.util.SJUtils;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.ChatColor;
+import net.kyori.adventure.text.Component;
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 
 /**
@@ -54,7 +51,9 @@ public class SuperJump extends CorePlugin {
         SJUtils.init();
         SJMode.init();
         for (SJMode mode : SJMode.values()) {
-            addBattleManager(mode.getBattleMode());
+            if (mode.getBattleMode() != null) {
+                addBattleManager(mode.getBattleMode());
+            }
         }
         
         //SJArena.init();
@@ -76,8 +75,8 @@ public class SuperJump extends CorePlugin {
     }
 
     @Override
-    public TextComponent getChatPrefix() {
-        return new TextComponent(Chat.TAG_BRACE + "[" + Chat.TAG + "SuperJump" + Chat.TAG_BRACE + "] ");
+    public Component getChatPrefix() {
+        return Component.text(Chat.TAG_BRACE + "[" + Chat.TAG + "SuperJump" + Chat.TAG_BRACE + "] ");
     }
     
     private void initCommands() {
@@ -97,6 +96,15 @@ public class SuperJump extends CorePlugin {
         }
         return playing;
     }
+
+    private void addMenuItem(InventoryMenuContainerChest container, SJMode mode, int x, int y) {
+        if (mode.getBattleMode() == null) {
+            container.addStaticItem(InventoryMenuUtils.createLockedMenuItem(StringUtils.capitalize(mode.name())), x, y);
+        } else {
+            InventoryMenuItem proMenu = Arenas.createMenu(getInstance(), mode.getBattleMode());
+            container.addStaticItem(proMenu, x, y);
+        }
+    }
     
     private void initMenu() {
         superJumpMenuItem = InventoryMenuAPI.createItemDynamic()
@@ -105,29 +113,19 @@ public class SuperJump extends CorePlugin {
                         /*"\n\n&7&lCurrently Playing: &6" + getCurrentlyPlaying()*/)
                 .setDisplayItem(Material.LEATHER_BOOTS, 1)
                 .setLinkedContainer(Arenas.createMenu(getInstance(), SJMode.CLASSIC.getBattleMode()).getLinkedChest());
-
-        /*
         
         InventoryMenuContainerChest container = superJumpMenuItem.getLinkedChest();
 
-        InventoryMenuItem shuffleMenu = Arenas.createMenu(getInstance(), SJMode.SHUFFLE.getBattleMode());
-        InventoryMenuItem conquestMenu = Arenas.createMenu(getInstance(), SJMode.CONQUEST.getBattleMode());
-        InventoryMenuItem endlessMenu = Arenas.createMenu(getInstance(), SJMode.ENDLESS.getBattleMode());
-        InventoryMenuItem classicMenu = Arenas.createMenu(getInstance(), SJMode.CLASSIC.getBattleMode());
-        InventoryMenuItem proMenu = Arenas.createMenu(getInstance(), SJMode.PRO.getBattleMode());
+        addMenuItem(container, SJMode.SHUFFLE, 2, 1);
+        addMenuItem(container, SJMode.CONQUEST, 3, 1);
+        addMenuItem(container, SJMode.ENDLESS, 4, 1);
+        addMenuItem(container, SJMode.CLASSIC, 5, 1);
+        addMenuItem(container, SJMode.PRO, 6, 1);
+        addMenuItem(container, SJMode.PARTY, 3, 2);
+        container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Tetronimo"), 4, 2);
+        container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Memory"), 6, 2);
+        container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Practice"), 5, 2);
 
-        container.addStaticItem(shuffleMenu, 2, 1);
-        container.addStaticItem(conquestMenu, 3, 1);
-        container.addStaticItem(endlessMenu, 4, 1);
-        container.addStaticItem(classicMenu, 5, 1);
-        container.addStaticItem(proMenu, 6, 1);
-
-        //container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Party"), 3, 2);
-        //container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Tetronimo"), 4, 2);
-        //container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Memory"), 6, 2);
-        //container.addStaticItem(InventoryMenuUtils.createLockedMenuItem("Practice"), 5, 2);
-         */
-    
         GamemodeMenu.getItem().getLinkedChest().addStaticItem(superJumpMenuItem, 5, 1);
     }
     
